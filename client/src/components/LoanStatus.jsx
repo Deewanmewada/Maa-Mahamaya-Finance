@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 function LoanStatus() {
   const { user } = useContext(AuthContext);
@@ -8,7 +9,7 @@ function LoanStatus() {
   useEffect(() => {
     const fetchLoans = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/loans/user/${user.id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/loans/user/${user.id}`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         const data = await response.json();

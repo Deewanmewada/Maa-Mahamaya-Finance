@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE_URL } from '../config'; // <-- Add this line
 
 function Register() {
   const { login } = useContext(AuthContext);
@@ -13,8 +14,8 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-      try {
-      const response = await fetch('https://maa-mahamaya-finance-1npm-install.onrender.com/api/auth/register', {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, role }),

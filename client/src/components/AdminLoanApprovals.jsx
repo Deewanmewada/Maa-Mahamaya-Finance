@@ -1,12 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 function AdminLoanApprovals() {
   const { user } = useContext(AuthContext);
   const [loans, setLoans] = useState([]);
-
-  // Use a constant for the API base URL
-  const API_BASE_URL = 'https://maa-mahamaya-finance-1npm-install.onrender.com';
 
   useEffect(() => {
     const fetchLoans = async () => {

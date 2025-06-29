@@ -1,20 +1,18 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 function EmployeeTasks() {
   const { user } = useContext(AuthContext);
   const [pendingLoans, setPendingLoans] = useState([]);
 
-  // Added logged in user display
-
   useEffect(() => {
     const fetchPendingLoans = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/loans/pending', {
+        const response = await fetch(`${API_BASE_URL}/api/loans/pending`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         const data = await response.json();
-        // Defensive check: ensure data is an array
         if (Array.isArray(data)) {
           setPendingLoans(data);
         } else if (data.loans && Array.isArray(data.loans)) {
@@ -32,7 +30,7 @@ function EmployeeTasks() {
 
   const handleLoanDecision = async (loanId, decision) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/loans/${loanId}/decision`, {
+      const response = await fetch(`${API_BASE_URL}/api/loans/${loanId}/decision`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

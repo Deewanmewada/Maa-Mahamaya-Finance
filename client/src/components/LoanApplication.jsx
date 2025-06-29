@@ -1,5 +1,6 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { API_BASE_URL } from '../config'; // <-- Add this line
 
 function LoanApplication() {
   const { user } = useContext(AuthContext);
@@ -9,7 +10,7 @@ function LoanApplication() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch('http://localhost:5000/api/loans/apply', {
+      const response = await fetch(`${API_BASE_URL}/api/loans/apply`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

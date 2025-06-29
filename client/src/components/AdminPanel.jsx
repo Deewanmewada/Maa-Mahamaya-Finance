@@ -3,6 +3,7 @@ import { AuthContext } from '../context/AuthContext';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import AdminLoanApprovals from './AdminLoanApprovals';
+import { API_BASE_URL } from '../config'; // <-- Add this import
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -14,7 +15,7 @@ function AdminPanel({ currentUser }) {
   const [showLoanApprovals, setShowLoanApprovals] = useState(false);
 
   useEffect(() => {
-const fetchData = async () => {
+    const fetchData = async () => {
       try {
         const token = user?.token;
         // Clear users state before fetching new data to avoid accumulation
@@ -22,9 +23,9 @@ const fetchData = async () => {
         setLoans([]);
         setTransactions([]);
         const [usersRes, loansRes, transactionsRes] = await Promise.all([
-          fetch('https://maa-mahamaya-finance-1npm-install.onrender.com/api/users', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('https://maa-mahamaya-finance-1npm-install.onrender.com/api/loans', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('https://maa-mahamaya-finance-1npm-install.onrender.com/api/transactions', { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_BASE_URL}/api/users`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_BASE_URL}/api/loans`, { headers: { Authorization: `Bearer ${token}` } }),
+          fetch(`${API_BASE_URL}/api/transactions`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
         {
           const usersData = await usersRes.json();

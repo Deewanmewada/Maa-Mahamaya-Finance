@@ -1,14 +1,16 @@
 import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { API_BASE_URL } from '../config';
 
 function QueryManagement() {
   const { user } = useContext(AuthContext);
   const [queries, setQueries] = useState([]);
+  const [responses, setResponses] = useState({});
 
   useEffect(() => {
     const fetchQueries = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/queries', {
+        const response = await fetch(`${API_BASE_URL}/api/queries`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         const data = await response.json();
@@ -30,7 +32,7 @@ function QueryManagement() {
 
   const handleRespond = async (queryId, responseText) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/queries/respond/${queryId}`, {
+      const response = await fetch(`${API_BASE_URL}/api/queries/respond/${queryId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,6 +43,7 @@ function QueryManagement() {
       if (response.ok) {
         alert('Response sent!');
         setQueries(queries.map((q) => (q._id === queryId ? { ...q, response: responseText } : q)));
+        setResponses({ ...responses, [queryId]: '' });
       } else {
         alert('Error sending response');
       }
@@ -66,14 +69,14 @@ function QueryManagement() {
                   <textarea
                     className="w-full p-2 border rounded-lg"
                     placeholder="Enter response"
-                    onChange={(e) => {
-                      const responseText = e.target.value;
-                      e.target.dataset.queryId = query._id;
-                    }}
+                    value={responses[query._id] || ''}
+                    onChange={(e) =>
+                      setResponses({ ...responses, [query._id]: e.target.value })
+                    }
                   />
                   <button
                     className="mt-2 bg-blue-600 text-white p-2 rounded-lg hover:bg-blue-700"
-                    onClick={() => handleRespond(query._id, document.querySelector(`textarea[data-query-id="${query._id}"]`).value)}
+                    onClick={() => handleRespond(query._id, responses[query._id] || '')}
                   >
                     Respond
                   </button>

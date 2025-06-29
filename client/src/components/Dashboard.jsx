@@ -8,6 +8,7 @@ import FinancialReports from './FinancialReports';
 import QueryManagement from './QueryManagement';
 import AdminPanel from './AdminPanel';
 import EmployeeTasks from './EmployeeTasks';
+import { API_BASE_URL } from '../config'; // <-- Add this line
 
 function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -20,7 +21,7 @@ function Dashboard() {
     if (user?.role === 'employee') {
       const fetchPendingLoans = async () => {
         try {
-          const response = await fetch('http://localhost:5000/api/loans/pending', {
+          const response = await fetch(`${API_BASE_URL}/api/loans/pending`, {
             headers: { Authorization: `Bearer ${user.token}` },
           });
           const data = await response.json();
@@ -41,8 +42,6 @@ function Dashboard() {
     }
   }, [user]);
   
-  
-
   useEffect(() => {
     setActiveSection('overview');
   }, [user?.role]);
@@ -53,7 +52,7 @@ function Dashboard() {
       try {
         console.log('Fetching loans for user:', user._id);
         const userId = user._id || user.id;
-        const response = await fetch(`http://localhost:5000/api/loans/user/${userId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/loans/user/${userId}`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         console.log('Response status:', response.status);
@@ -71,7 +70,7 @@ function Dashboard() {
     const fetchUsers = async () => {
       if (!user || user.role !== 'admin') return;
       try {
-        const response = await fetch('http://localhost:5000/api/users', {
+        const response = await fetch(`${API_BASE_URL}/api/users`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         if (!response.ok) {
@@ -91,7 +90,7 @@ function Dashboard() {
     const fetchUsers = async () => {
       if (!user || user.role !== 'admin') return;
       try {
-        const response = await fetch('http://localhost:5000/api/users', {
+        const response = await fetch(`${API_BASE_URL}/api/users`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         if (!response.ok) {
@@ -156,21 +155,21 @@ function Dashboard() {
 
   const renderBusinessSections = () => {
     switch (activeSection) {
-case 'overview':
-  return (
-    <div className="w-full mx-4 p-6 bg-white rounded-md shadow-md border border-gray-200">
-      <h1 className="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-600 pb-1">Business Dashboard</h1>
-      <p className="text-base text-gray-700 mb-3">Manage your business finances efficiently.</p>
-      <p className="text-sm font-semibold text-gray-800 mb-4">User: {user?.name}</p>
-      {/* Add more business overview content here */}
-      <button
-        className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors font-semibold text-base"
-        onClick={() => setActiveSection('apply-loan')}
-      >
-        Apply for a Loan
-      </button>
-    </div>
-  );
+      case 'overview':
+        return (
+          <div className="w-full mx-4 p-6 bg-white rounded-md shadow-md border border-gray-200">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4 border-b-2 border-blue-600 pb-1">Business Dashboard</h1>
+            <p className="text-base text-gray-700 mb-3">Manage your business finances efficiently.</p>
+            <p className="text-sm font-semibold text-gray-800 mb-4">User: {user?.name}</p>
+            {/* Add more business overview content here */}
+            <button
+              className="mt-4 px-5 py-2 bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition-colors font-semibold text-base"
+              onClick={() => setActiveSection('apply-loan')}
+            >
+              Apply for a Loan
+            </button>
+          </div>
+        );
       case 'accounts':
         return <div><h2>Business Accounts</h2></div>;
       case 'transactions':

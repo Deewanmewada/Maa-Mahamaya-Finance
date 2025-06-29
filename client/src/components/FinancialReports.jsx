@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { Bar } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
+import { API_BASE_URL } from '../config';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -12,7 +13,7 @@ function FinancialReports() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/transactions/user/${user.id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/transactions/user/${user.id}`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         const data = await response.json();
