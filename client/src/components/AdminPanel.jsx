@@ -14,7 +14,7 @@ function AdminPanel({ currentUser }) {
   const [showLoanApprovals, setShowLoanApprovals] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
+const fetchData = async () => {
       try {
         const token = user?.token;
         // Clear users state before fetching new data to avoid accumulation
@@ -22,9 +22,9 @@ function AdminPanel({ currentUser }) {
         setLoans([]);
         setTransactions([]);
         const [usersRes, loansRes, transactionsRes] = await Promise.all([
-          fetch('http://localhost:5000/api/users', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('http://localhost:5000/api/loans', { headers: { Authorization: `Bearer ${token}` } }),
-          fetch('http://localhost:5000/api/transactions', { headers: { Authorization: `Bearer ${token}` } }),
+          fetch('https://maa-mahamaya-finance-1npm-install.onrender.com/api/users', { headers: { Authorization: `Bearer ${token}` } }),
+          fetch('https://maa-mahamaya-finance-1npm-install.onrender.com/api/loans', { headers: { Authorization: `Bearer ${token}` } }),
+          fetch('https://maa-mahamaya-finance-1npm-install.onrender.com/api/transactions', { headers: { Authorization: `Bearer ${token}` } }),
         ]);
         {
           const usersData = await usersRes.json();

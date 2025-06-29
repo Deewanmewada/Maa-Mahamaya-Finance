@@ -6,12 +6,15 @@ const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const { User, Loan, Transaction, Query } = require('./userSchema');
 
-
-
 const app = express(); 
 
 app.use(cors());
 app.use(express.json()); 
+
+// ✅ Root route added for Render testing
+app.get('/', (req, res) => {
+  res.send('✅ Maa Mahamaya Finance backend is running!');
+});
 
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
@@ -23,8 +26,6 @@ mongoose.connect(process.env.MONGODB_URI, {
   console.error('Error connecting to MongoDB:', error);
 });
 
-
-
 // Middleware for role-based authorization
 const authorize = (roles) => (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
@@ -32,18 +33,12 @@ const authorize = (roles) => (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Authorize middleware decoded token:', decoded);
-    console.log('Required roles:', roles);
-    console.log('Decoded role type:', typeof decoded.role);
-    console.log('Roles array:', roles);
     if (decoded.role !== 'admin' && !roles.includes(decoded.role)) {
-      console.log('Authorization failed for role:', decoded.role);
       return res.status(403).json({ message: 'Unauthorized' });
     }
     req.user = decoded;
     next();
   } catch (error) {
-    console.log('Authorization error:', error);
     res.status(401).json({ message: 'Invalid token' });
   }
 };
@@ -58,7 +53,6 @@ app.post('/api/auth/register', async (req, res) => {
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
   } catch (error) {
-    console.error('Registration error:', error);
     res.status(400).json({ message: 'Error registering user', error });
   }
 });
@@ -104,14 +98,11 @@ app.get('/api/loans', authorize(['admin']), async (req, res) => {
   }
 });
 
-// New endpoint for employees to get pending loans with user details
 app.get('/api/loans/pending', authorize(['employee']), async (req, res) => {
   try {
     const loans = await Loan.find({ status: 'pending' }).populate('userId', 'name email role');
-    console.log('Pending loans fetched:', loans);
     res.json(loans);
   } catch (error) {
-    console.error('Error fetching pending loans:', error);
     res.status(400).json({ message: 'Error fetching pending loans', error });
   }
 });
@@ -172,10 +163,8 @@ app.post('/api/queries/respond/:queryId', authorize(['employee', 'admin']), asyn
 app.get('/api/users', authorize(['admin']), async (req, res) => {
   try {
     const users = await User.find();
-    console.log('Users fetched from DB:', users.length);
     res.json(users);
   } catch (error) {
-    console.error('Error fetching users:', error);
     res.status(400).json({ message: 'Error fetching users', error });
   }
 }); 
@@ -199,11 +188,10 @@ app.post('/api/loans/:loanId/decision', authorize(['admin', 'employee']), async 
 
     res.json({ message: `Loan ${status} successfully` });
   } catch (error) {
-    console.error('Error updating loan status:', error);
     res.status(500).json({ message: 'Error updating loan status', error });
   }
 });
 
-
-
-app.listen(5000, () => console.log('Server running on port 5000'));
+// ✅ Server start (Render-compatible)
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));

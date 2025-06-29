@@ -13,8 +13,8 @@ function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      try {
+      const response = await fetch('https://maa-mahamaya-finance-1npm-install.onrender.com/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, role }),

@@ -5,10 +5,13 @@ function AdminLoanApprovals() {
   const { user } = useContext(AuthContext);
   const [loans, setLoans] = useState([]);
 
+  // Use a constant for the API base URL
+  const API_BASE_URL = 'https://maa-mahamaya-finance-1npm-install.onrender.com';
+
   useEffect(() => {
     const fetchLoans = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/loans', {
+        const response = await fetch(`${API_BASE_URL}/api/loans`, {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         const data = await response.json();
@@ -29,7 +32,7 @@ function AdminLoanApprovals() {
 
   const handleLoanDecision = async (loanId, decision) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/loans/${loanId}/decision`, {
+      const response = await fetch(`${API_BASE_URL}/api/loans/${loanId}/decision`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
