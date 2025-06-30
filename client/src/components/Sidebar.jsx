@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext'; // <-- Add this line
+
 
 function Sidebar({ role, activeSection, setActiveSection }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { logout } = useContext(AuthContext); // <-- Use logout from context
 
   const customerItems = [
     { id: 'overview', label: 'Overview', icon: 'fas fa-tachometer-alt' },
@@ -36,10 +39,6 @@ function Sidebar({ role, activeSection, setActiveSection }) {
     { id: 'settings', label: 'System Settings', icon: 'fas fa-cogs' },
   ];
 
-  const logout = () => {
-    window.location.href = '/login';
-  };
-
   const goHome = () => {
     window.location.href = '/';
   };
@@ -70,6 +69,12 @@ function Sidebar({ role, activeSection, setActiveSection }) {
     default:
       items = [];
   }
+
+  // Use this logout handler to clear session and redirect
+  const handleLogout = () => {
+    logout(); // Clear user session/token from context
+    window.location.href = '/login'; // Redirect to login
+  };
 
   return (
     <>
@@ -137,7 +142,7 @@ function Sidebar({ role, activeSection, setActiveSection }) {
           ))}
           <div
             className="sidebar-item px-6 py-3 cursor-pointer text-red-600 flex items-center mt-4"
-            onClick={logout}
+            onClick={handleLogout} // <-- Use the new logout handler
           >
             <i className="fas fa-sign-out-alt mr-3"></i>Logout
           </div>
