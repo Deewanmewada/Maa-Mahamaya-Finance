@@ -70,7 +70,7 @@ function EmployeeTasks() {
           <tbody>
             {pendingLoans.map((loan) => (
               <tr key={loan._id} className="border-t">
-                <td className="p-2">{loan.userId.name}</td>
+                <td className="p-2">{loan.userId?.name || 'Unknown'}</td>
                 <td className="p-2">${loan.amount}</td>
                 <td className="p-2">{loan.purpose}</td>
                 <td className="p-2">
