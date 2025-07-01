@@ -36,7 +36,7 @@ function Login() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
-              <img src="/image.png" alt="Maa Mahamaya Finance" className="h-10 w-auto mr-2" />
+              <img src="/MMF_logo.png" alt="Maa Mahamaya Finance" className="h-10 w-auto mr-2" />
               <span className="text-2xl font-bold text-gray-900">Maa Mahamaya Finance</span>
             </div>
             <h2 className="text-2xl font-bold text-gray-900">Welcome Back</h2>

@@ -45,15 +45,35 @@ const authorize = (roles) => (req, res, next) => {
 
 // Authentication Routes
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, role } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const { name, email, password, role, address, pincode, mobileNumber } = req.body;
+  console.log('Register API received data:', { name, email, password, role, address, pincode, mobileNumber });
+
+  // Validate that all required fields are present
+  if (!name || !email || !password || !role || !address || !pincode || !mobileNumber) {
+    return res.status(400).json({ message: 'All fields are required' });
+  }
+
   try {
-    const user = new User({ name, email, password: hashedPassword, role });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, password: hashedPassword, role, address, pincode, mobileNumber });
     await user.save();
+    console.log('User saved in DB:', user.toObject()); // Use toObject() to log plain JS object
     const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.status(201).json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+    res.status(201).json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        address: user.address,
+        pincode: user.pincode,
+        mobileNumber: user.mobileNumber
+      }
+    });
   } catch (error) {
-    res.status(400).json({ message: 'Error registering user', error });
+    console.error('Error saving user:', error);
+    res.status(400).json({ message: 'Error registering user', error: error.message });
   }
 });
 

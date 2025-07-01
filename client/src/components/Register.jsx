@@ -1,7 +1,9 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '../config'; // <-- Add this line
+import { API_BASE_URL } from '../config';
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 function Register() {
   const { login } = useContext(AuthContext);
@@ -10,6 +12,9 @@ function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+  const [address, setAddress] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -18,7 +23,7 @@ function Register() {
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ name, email, password, role, address, pincode, mobileNumber }),
       });
       const data = await response.json();
       if (data.token) {
@@ -36,17 +41,19 @@ function Register() {
     <div id="register-page" className="min-h-screen pt-16 bg-gradient-to-br from-blue-50 to-white flex items-center justify-center">
       <div className="w-full max-w-md mx-6 sm:mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-4">
-                <img src="/image.png" alt="Maa Mahamaya Finance" className="h-10 w-auto mr-2" />
-                <span className="text-2xl font-bold text-gray-900">Maa Mahamaya Finance</span>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
-              <p className="text-gray-600">Join thousands of satisfied customers</p>
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <img src="/MMF_logo.png" alt="Maa Mahamaya Finance" className="h-10 w-auto mr-2" />
+              <span className="text-2xl font-bold text-gray-900">Maa Mahamaya Finance</span>
             </div>
+            <h2 className="text-2xl font-bold text-gray-900">Create Account</h2>
+            <p className="text-gray-600">Join thousands of satisfied customers</p>
+          </div>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Full Name <span className="text-red-600">*</span>
+              </label>
               <input
                 type="text"
                 value={name}
@@ -56,7 +63,9 @@ function Register() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email Address <span className="text-red-600">*</span>
+              </label>
               <input
                 type="email"
                 value={email}
@@ -66,7 +75,9 @@ function Register() {
               />
             </div>
             <div className="relative">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password <span className="text-red-600">*</span>
+              </label>
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
@@ -93,7 +104,53 @@ function Register() {
               </button>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mobile Number <span className="text-red-600">*</span>
+              </label>
+              <PhoneInput
+                country={'in'}
+                value={mobileNumber}
+                onChange={setMobileNumber}
+                inputProps={{
+                  name: 'mobile',
+                  required: true,
+                  className:
+                    'w-full px-4 py-3 pl-16 border border-gray-300 rounded-lg focus:ring-4 focus:ring-blue-400 focus:border-blue-600 transition duration-300 ease-in-out',
+                }}
+                containerClass="w-full rounded-lg border border-gray-300 shadow-sm focus-within:ring-4 focus-within:ring-blue-400 focus-within:border-blue-600 transition duration-300 ease-in-out"
+                inputClass="w-full bg-white"
+                buttonClass="bg-white border-r border-gray-300 rounded-l-lg shadow-sm hover:bg-blue-50 transition duration-300 ease-in-out"
+              />
+              <p className="mt-1 text-xs text-gray-500">Enter your mobile number with country code.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Address <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Pincode <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                value={pincode}
+                onChange={(e) => setPincode(e.target.value)}
+                required
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Account Type <span className="text-red-600">*</span>
+              </label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
