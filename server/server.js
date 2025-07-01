@@ -64,7 +64,12 @@ async function sendOtpEmail(email, otp) {
     subject: 'Your OTP for Maa Mahamaya Finance Registration',
     text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
   };
-  await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.error('Nodemailer sendMail error:', error);
+    throw error;
+  }
 }
 
 // Endpoint to request OTP

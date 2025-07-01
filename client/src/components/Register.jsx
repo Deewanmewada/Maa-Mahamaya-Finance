@@ -252,7 +252,7 @@ function Register() {
           </form>
 
           {otpSent && !otpVerified && (
-            <div className="mt-4">
+            <div className="mt-4 space-y-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Enter OTP <span className="text-red-600">*</span>
               </label>
