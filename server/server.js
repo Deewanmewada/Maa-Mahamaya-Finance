@@ -56,19 +56,19 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ name, email, password: hashedPassword, role, address, pincode, mobileNumber });
-    await user.save();
-    console.log('User saved in DB:', user.toObject()); // Use toObject() to log plain JS object
-    const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const savedUser = await user.save();
+    console.log('User saved in DB:', savedUser.toObject()); // Use toObject() to log plain JS object
+    const token = jwt.sign({ id: savedUser._id, role: savedUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.status(201).json({
       token,
       user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        address: user.address,
-        pincode: user.pincode,
-        mobileNumber: user.mobileNumber
+        id: savedUser._id,
+        name: savedUser.name,
+        email: savedUser.email,
+        role: savedUser.role,
+        address: savedUser.address,
+        pincode: savedUser.pincode,
+        mobileNumber: savedUser.mobileNumber
       }
     });
   } catch (error) {
