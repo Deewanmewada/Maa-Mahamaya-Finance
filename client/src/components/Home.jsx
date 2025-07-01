@@ -115,7 +115,7 @@ function Home() {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <div className="flex-shrink-0 flex items-center">
-                <img src="/image.png" alt="Maa Mahamaya Finance" className="h-8 w-auto mr-2" />
+                <img src="/MMF_logo.png" alt="Maa Mahamaya Finance" className="h-8 w-auto mr-2" />
                 <span className="text-white text-xl font-bold">Maa Mahamaya Finance</span>
               </div>
             </div>
