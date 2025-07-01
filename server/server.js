@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const { User, Loan, Transaction, Query } = require('./userSchema');
+const nodemailer = require('nodemailer');
 
 const app = express(); 
 
@@ -43,15 +44,88 @@ const authorize = (roles) => (req, res, next) => {
   }
 };
 
-// Authentication Routes
+// In-memory store for OTPs (for demo purposes, consider using DB or cache in production)
+const otpStore = new Map();
+
+// Nodemailer transporter setup (configure with your email service credentials)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER, // Your email address
+    pass: process.env.EMAIL_PASS, // Your email password or app password
+  },
+});
+
+// Function to send OTP email
+async function sendOtpEmail(email, otp) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Your OTP for Maa Mahamaya Finance Registration',
+    text: `Your OTP code is: ${otp}. It will expire in 10 minutes.`,
+  };
+  await transporter.sendMail(mailOptions);
+}
+
+// Endpoint to request OTP
+app.post('/api/auth/request-otp', async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ message: 'Email is required' });
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  // Store OTP with expiration (10 minutes)
+  otpStore.set(email, { otp, expiresAt: Date.now() + 10 * 60 * 1000 });
+
+  try {
+    await sendOtpEmail(email, otp);
+    res.json({ message: 'OTP sent to email' });
+  } catch (error) {
+    console.error('Error sending OTP email:', error);
+    res.status(500).json({ message: 'Failed to send OTP' });
+  }
+});
+
+// Endpoint to verify OTP
+app.post('/api/auth/verify-otp', (req, res) => {
+  const { email, otp } = req.body;
+  if (!email || !otp) return res.status(400).json({ message: 'Email and OTP are required' });
+
+  const record = otpStore.get(email);
+  if (!record) return res.status(400).json({ message: 'OTP not found or expired' });
+
+  if (record.expiresAt < Date.now()) {
+    otpStore.delete(email);
+    return res.status(400).json({ message: 'OTP expired' });
+  }
+
+  if (record.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
+
+  otpStore.delete(email);
+  res.json({ message: 'OTP verified' });
+});
+
+// Registration endpoint with OTP verification
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, role, address, pincode, mobileNumber } = req.body;
-  console.log('Register API received data:', { name, email, password, role, address, pincode, mobileNumber });
+  const { name, email, password, role, address, pincode, mobileNumber, otp } = req.body;
+  console.log('Register API received data:', { name, email, password, role, address, pincode, mobileNumber, otp });
 
   // Validate that all required fields are present
-  if (!name || !email || !password || !role || !address || !pincode || !mobileNumber) {
-    return res.status(400).json({ message: 'All fields are required' });
+  if (!name || !email || !password || !role || !address || !pincode || !mobileNumber || !otp) {
+    return res.status(400).json({ message: 'All fields including OTP are required' });
   }
+
+  // Verify OTP
+  const record = otpStore.get(email);
+  if (!record) return res.status(400).json({ message: 'OTP not found or expired' });
+  if (record.expiresAt < Date.now()) {
+    otpStore.delete(email);
+    return res.status(400).json({ message: 'OTP expired' });
+  }
+  if (record.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
+
+  otpStore.delete(email);
 
   try {
     const hashedPassword = await bcrypt.hash(password, 10);

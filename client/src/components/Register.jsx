@@ -15,6 +15,90 @@ function Register() {
   const [address, setAddress] = useState('');
   const [pincode, setPincode] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+
+  const requestOtp = async () => {
+    if (!email) {
+      alert('Please enter your email to receive OTP');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/request-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setOtpSent(true);
+        setOtpError('');
+        alert('OTP sent to your email');
+      } else {
+        setOtpError(data.message || 'Failed to send OTP');
+      }
+    } catch (error) {
+      setOtpError('Error sending OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const verifyOtp = async () => {
+    if (!otp) {
+      setOtpError('Please enter the OTP');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setOtpVerified(true);
+        setOtpError('');
+        alert('OTP verified successfully');
+      } else {
+        setOtpError(data.message || 'Invalid OTP');
+      }
+    } catch (error) {
+      setOtpError('Error verifying OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!otpVerified) {
+      alert('Please verify OTP before registering');
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+<edit_file>
+<path>client/src/components/Register.jsx</path>
+<content>
+<<<<<<< SEARCH
+function Register() {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const [address, setAddress] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
@@ -24,6 +108,101 @@ function Register() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, role, address, pincode, mobileNumber }),
+      });
+      const data = await response.json();
+      if (data.token) {
+        login({ ...data.user, token: data.token });
+        navigate(`/${data.user.role}-dashboard`);
+      } else {
+        alert('Registration failed');
+      }
+    } catch (error) {
+      alert('Error during registration');
+    }
+  };
+=======
+function Register() {
+  const { login } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role, setRole] = useState('');
+  const [address, setAddress] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [mobileNumber, setMobileNumber] = useState('');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [otpError, setOtpError] = useState('');
+  const [otpLoading, setOtpLoading] = useState(false);
+
+  const requestOtp = async () => {
+    if (!email) {
+      alert('Please enter your email to receive OTP');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/request-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setOtpSent(true);
+        setOtpError('');
+        alert('OTP sent to your email');
+      } else {
+        setOtpError(data.message || 'Failed to send OTP');
+      }
+    } catch (error) {
+      setOtpError('Error sending OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const verifyOtp = async () => {
+    if (!otp) {
+      setOtpError('Please enter the OTP');
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setOtpVerified(true);
+        setOtpError('');
+        alert('OTP verified successfully');
+      } else {
+        setOtpError(data.message || 'Invalid OTP');
+      }
+    } catch (error) {
+      setOtpError('Error verifying OTP');
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!otpVerified) {
+      alert('Please verify OTP before registering');
+      return;
+    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role, address, pincode, mobileNumber, otp }),
       });
       const data = await response.json();
       if (data.token) {
@@ -66,13 +245,32 @@ function Register() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address <span className="text-red-600">*</span>
               </label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <div className="flex items-center space-x-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setOtpSent(false);
+                    setOtpVerified(false);
+                    setOtp('');
+                    setOtpError('');
+                  }}
+                  required
+                  className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button
+                  type="button"
+                  onClick={requestOtp}
+                  disabled={otpLoading || otpSent}
+                  className={`px-4 py-3 rounded-lg font-semibold text-white transition-colors ${
+                    otpSent ? 'bg-green-600 cursor-default' : 'bg-blue-600 hover:bg-blue-700'
+                  }`}
+                >
+                  {otpLoading ? 'Sending...' : otpSent ? 'OTP Sent' : 'Send OTP'}
+                </button>
+              </div>
+              {otpError && <p className="mt-1 text-xs text-red-600">{otpError}</p>}
             </div>
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -168,6 +366,30 @@ function Register() {
               Create Account
             </button>
           </form>
+
+          {otpSent && !otpVerified && (
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Enter OTP <span className="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+              {otpError && <p className="mt-1 text-xs text-red-600">{otpError}</p>}
+              <button
+                type="button"
+                onClick={verifyOtp}
+                disabled={otpLoading}
+                className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold text-lg transition-colors"
+              >
+                {otpLoading ? 'Verifying...' : 'Verify OTP'}
+              </button>
+            </div>
+          )}
+
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Already have an account?{' '}
