@@ -75,10 +75,22 @@ app.post('/api/auth/request-otp', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ message: 'Email is required' });
 
-  // Generate 6-digit OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
   try {
+    // Check if email is already registered
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email is already registered. Please login or use a different email.' });
+    }
+
+    // Check if OTP already sent and not expired
+    const existingOtp = await OTP.findOne({ email });
+    if (existingOtp && existingOtp.expiresAt > new Date()) {
+      return res.status(400).json({ message: 'OTP already sent. Please check your email.' });
+    }
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
     // Delete any existing OTP for this email
     await OTP.deleteOne({ email });
 
