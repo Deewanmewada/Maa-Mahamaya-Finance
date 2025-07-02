@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const cors = require('cors');
 const { User, Loan, Transaction, Query } = require('./userSchema');
+const OTP = require('./userOtp');
 const nodemailer = require('nodemailer');
 
 const app = express(); 
@@ -44,9 +45,6 @@ const authorize = (roles) => (req, res, next) => {
   }
 };
 
-// In-memory store for OTPs (for demo purposes, consider using DB or cache in production)
-const otpStore = new Map();
-
 // Nodemailer transporter setup (configure with your email service credentials)
 const transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -80,10 +78,14 @@ app.post('/api/auth/request-otp', async (req, res) => {
   // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-  // Store OTP with expiration (10 minutes)
-  otpStore.set(email, { otp, expiresAt: Date.now() + 10 * 60 * 1000 });
-
   try {
+    // Delete any existing OTP for this email
+    await OTP.deleteOne({ email });
+
+    // Store new OTP with expiration (10 minutes)
+    const otpDoc = new OTP({ email, otp, expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
+    await otpDoc.save();
+
     await sendOtpEmail(email, otp);
     res.json({ message: 'OTP sent to email' });
   } catch (error) {
@@ -92,26 +94,31 @@ app.post('/api/auth/request-otp', async (req, res) => {
   }
 });
 
-// Endpoint to verify OTP
-app.post('/api/auth/verify-otp', (req, res) => {
+app.post('/api/auth/verify-otp', async (req, res) => {
   const { email, otp } = req.body;
   if (!email || !otp) return res.status(400).json({ message: 'Email and OTP are required' });
 
-  const record = otpStore.get(email);
-  if (!record) return res.status(400).json({ message: 'OTP not found or expired' });
+  try {
+    const record = await OTP.findOne({ email });
+    if (!record) return res.status(400).json({ message: 'OTP not found or expired' });
 
-  if (record.expiresAt < Date.now()) {
-    otpStore.delete(email);
-    return res.status(400).json({ message: 'OTP expired' });
+    if (record.expiresAt < new Date()) {
+      await OTP.deleteOne({ email });
+      return res.status(400).json({ message: 'OTP expired' });
+    }
+
+    if (record.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
+
+    // Do not delete OTP here; keep it until registration completes
+    // await OTP.deleteOne({ email });
+
+    res.json({ message: 'OTP verified' });
+  } catch (error) {
+    console.error('Error verifying OTP:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-
-  if (record.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
-
-  otpStore.delete(email);
-  res.json({ message: 'OTP verified' });
 });
 
-// Registration endpoint with OTP verification
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password, role, address, pincode, mobileNumber, otp } = req.body;
   console.log('Register API received data:', { name, email, password, role, address, pincode, mobileNumber, otp });
@@ -121,18 +128,17 @@ app.post('/api/auth/register', async (req, res) => {
     return res.status(400).json({ message: 'All fields including OTP are required' });
   }
 
-  // Verify OTP
-  const record = otpStore.get(email);
-  if (!record) return res.status(400).json({ message: 'OTP not found or expired' });
-  if (record.expiresAt < Date.now()) {
-    otpStore.delete(email);
-    return res.status(400).json({ message: 'OTP expired' });
-  }
-  if (record.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
-
-  otpStore.delete(email);
-
   try {
+    const record = await OTP.findOne({ email });
+    if (!record) return res.status(400).json({ message: 'OTP not found or expired' });
+    if (record.expiresAt < new Date()) {
+      await OTP.deleteOne({ email });
+      return res.status(400).json({ message: 'OTP expired' });
+    }
+    if (record.otp !== otp) return res.status(400).json({ message: 'Invalid OTP' });
+
+    await OTP.deleteOne({ email });
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const user = new User({ name, email, password: hashedPassword, role, address, pincode, mobileNumber });
     const savedUser = await user.save();
