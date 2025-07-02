@@ -206,7 +206,8 @@ function Home() {
                 True relationships developing the futures. Comprehensive financial solutions for individuals and businesses.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4">
+            {/* Removed Get Started and Sign In buttons */}
+            {/* <div className="flex flex-col sm:flex-row gap-4">
               <button onClick={() => navigate('/register')} className="btn-primary text-white px-8 py-4 rounded-full font-semibold text-lg flex items-center justify-center">
                 Get Started
                 <i className="fas fa-arrow-right ml-2"></i>
@@ -214,7 +215,7 @@ function Home() {
               <button onClick={() => navigate('/login')} className="border-2 border-white text-white px-8 py-4 rounded-full font-semibold text-lg hover:bg-white hover:text-slate-900 transition-colors">
                 Sign In
               </button>
-            </div>
+            </div> */}
           </div>
           <div className="relative">
             <div className="bg-white rounded-2xl p-8 shadow-2xl">
