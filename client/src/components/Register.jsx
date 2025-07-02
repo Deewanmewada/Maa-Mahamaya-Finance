@@ -62,13 +62,15 @@ function Register() {
         body: JSON.stringify({ email, otp }),
       });
       const data = await response.json();
-      if (response.ok) {
-        setOtpVerified(true);
-        setOtpError('');
-        alert('OTP verified successfully');
-      } else {
-        setOtpError(data.message || 'Invalid OTP');
-      }
+        if (response.ok) {
+          setOtpVerified(true);
+          setOtpError('');
+          alert('OTP verified successfully');
+          // Update UI message or state to show verification success
+          // You can replace alert with a styled message or toast notification
+        } else {
+          setOtpError(data.message || 'Invalid OTP');
+        }
     } catch (error) {
       setOtpError('Error verifying OTP');
     } finally {
@@ -143,16 +145,18 @@ function Register() {
                   required
                   className="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
-                <button
-                  type="button"
-                  onClick={requestOtp}
-                  disabled={otpLoading || otpSent}
-                  className={`px-4 py-3 rounded-lg font-semibold text-white transition-colors ${
-                    otpSent ? 'bg-green-600 cursor-default' : 'bg-blue-600 hover:bg-blue-700'
-                  }`}
-                >
-                  {otpLoading ? 'Sending...' : otpSent ? 'OTP Sent' : 'Send OTP'}
-                </button>
+                {!otpVerified && (
+                  <button
+                    type="button"
+                    onClick={requestOtp}
+                    disabled={otpLoading || otpSent}
+                    className={`px-4 py-3 rounded-lg font-semibold text-white transition-colors ${
+                      otpSent ? 'bg-green-600 cursor-default' : 'bg-blue-600 hover:bg-blue-700'
+                    }`}
+                  >
+                    {otpLoading ? 'Sending...' : otpSent ? 'OTP Sent' : 'Send OTP'}
+                  </button>
+                )}
               </div>
               {otpError && <p className="mt-1 text-xs text-red-600">{otpError}</p>}
               {otpSent && !otpVerified && (
