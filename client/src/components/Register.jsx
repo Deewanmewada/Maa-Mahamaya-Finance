@@ -155,6 +155,48 @@ function Register() {
                 </button>
               </div>
               {otpError && <p className="mt-1 text-xs text-red-600">{otpError}</p>}
+              {otpSent && !otpVerified && (
+                <div className="mt-4 space-y-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Enter OTP <span className="text-red-600">*</span>
+                  </label>
+                  <div className="flex space-x-2 justify-center">
+                    {[...Array(6)].map((_, index) => (
+                      <input
+                        key={index}
+                        type="text"
+                        maxLength="1"
+                        className="w-10 h-10 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        onChange={(e) => {
+                          if (/^\d$/.test(e.target.value)) {
+                            const newOtp = otp.split('');
+                            newOtp[index] = e.target.value;
+                            setOtp(newOtp.join(''));
+                            // Move focus to next input
+                            if (index < 5) {
+                              e.target.nextSibling.focus();
+                            }
+                          } else if (e.target.value === '') {
+                            const newOtp = otp.split('');
+                            newOtp[index] = '';
+                            setOtp(newOtp.join(''));
+                          }
+                        }}
+                        value={otp[index] || ''}
+                      />
+                    ))}
+                  </div>
+                  {otpError && <p className="mt-1 text-xs text-red-600">{otpError}</p>}
+                  <button
+                    type="button"
+                    onClick={verifyOtp}
+                    disabled={otpLoading || otp.length !== 6}
+                    className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold text-lg transition-colors"
+                  >
+                    {otpLoading ? 'Verifying...' : 'Verify OTP'}
+                  </button>
+                </div>
+              )}
             </div>
             <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -256,17 +298,37 @@ function Register() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Enter OTP <span className="text-red-600">*</span>
               </label>
-              <input
-                type="text"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+              <div className="flex space-x-2 justify-center">
+                {[...Array(6)].map((_, index) => (
+                  <input
+                    key={index}
+                    type="text"
+                    maxLength="1"
+                    className="w-10 h-10 text-center border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    onChange={(e) => {
+                      if (/^\d$/.test(e.target.value)) {
+                        const newOtp = otp.split('');
+                        newOtp[index] = e.target.value;
+                        setOtp(newOtp.join(''));
+                        // Move focus to next input
+                        if (index < 5) {
+                          e.target.nextSibling.focus();
+                        }
+                      } else if (e.target.value === '') {
+                        const newOtp = otp.split('');
+                        newOtp[index] = '';
+                        setOtp(newOtp.join(''));
+                      }
+                    }}
+                    value={otp[index] || ''}
+                  />
+                ))}
+              </div>
               {otpError && <p className="mt-1 text-xs text-red-600">{otpError}</p>}
               <button
                 type="button"
                 onClick={verifyOtp}
-                disabled={otpLoading}
+                disabled={otpLoading || otp.length !== 6}
                 className="mt-2 w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold text-lg transition-colors"
               >
                 {otpLoading ? 'Verifying...' : 'Verify OTP'}
