@@ -104,13 +104,13 @@ app.post('/api/auth/request-otp', async (req, res) => {
 
   try {
     // Check if email is already registered
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(400).json({ message: 'Email is already registered. Please login or use a different email.' });
     }
 
     // Check if OTP already sent and not expired
-    const existingOtp = await OTP.findOne({ email });
+    const existingOtp = await OTP.findOne({ email: email.toLowerCase() });
     if (existingOtp && existingOtp.expiresAt > new Date()) {
       return res.status(400).json({ message: 'OTP already sent. Please check your email.' });
     }
@@ -119,10 +119,10 @@ app.post('/api/auth/request-otp', async (req, res) => {
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     // Delete any existing OTP for this email
-    await OTP.deleteOne({ email });
+    await OTP.deleteOne({ email: email.toLowerCase() });
 
     // Store new OTP with expiration (10 minutes)
-    const otpDoc = new OTP({ email, otp, expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
+    const otpDoc = new OTP({ email: email.toLowerCase(), otp, expiresAt: new Date(Date.now() + 10 * 60 * 1000) });
     await otpDoc.save();
 
     await sendOtpEmail(email, otp);

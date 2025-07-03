@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext'; // <-- Add this line
-
+import { AuthContext } from '../context/AuthContext';
+import EmployeeProfile from './EmployeeProfile';
 
 function Sidebar({ role, activeSection, setActiveSection }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { logout } = useContext(AuthContext); // <-- Use logout from context
+  const { logout, user } = useContext(AuthContext);
 
   const customerItems = [
     { id: 'overview', label: 'Overview', icon: 'fas fa-tachometer-alt' },
@@ -30,6 +30,7 @@ function Sidebar({ role, activeSection, setActiveSection }) {
     { id: 'tasks', label: 'Tasks', icon: 'fas fa-tasks' },
     { id: 'clients', label: 'Clients', icon: 'fas fa-users' },
     { id: 'performance', label: 'Performance', icon: 'fas fa-chart-line' },
+    { id: 'profile', label: 'Profile', icon: 'fas fa-user' },
   ];
 
   const adminItems = [
@@ -72,8 +73,8 @@ function Sidebar({ role, activeSection, setActiveSection }) {
 
   // Use this logout handler to clear session and redirect
   const handleLogout = () => {
-    logout(); // Clear user session/token from context
-    window.location.href = '/login'; // Redirect to login
+    logout();
+    window.location.href = '/login';
   };
 
   return (
@@ -115,12 +116,13 @@ function Sidebar({ role, activeSection, setActiveSection }) {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } md:translate-x-0 md:block fixed md:static inset-y-0 left-0 z-50 overflow-y-auto transform transition-transform duration-300 ease-in-out`}
       >
-        <div className="p-6 border-b hidden md:flex items-center">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-            <i className="fas fa-user text-white"></i>
+        <div className="p-6 border-b hidden md:flex flex-col items-center">
+          <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mb-2">
+            <i className="fas fa-user text-white text-2xl"></i>
           </div>
-          <div className="ml-3">
-            <p className="font-semibold text-gray-900 capitalize">{role} Account</p>
+          <div className="text-center mb-4">
+            <p className="font-semibold text-gray-900 capitalize">{user?.name || role} Account</p>
+            <p className="text-sm text-gray-600">{user?.email}</p>
           </div>
         </div>
         <nav className="mt-6">
@@ -142,12 +144,17 @@ function Sidebar({ role, activeSection, setActiveSection }) {
           ))}
           <div
             className="sidebar-item px-6 py-3 cursor-pointer text-red-600 flex items-center mt-4"
-            onClick={handleLogout} // <-- Use the new logout handler
+            onClick={handleLogout}
           >
             <i className="fas fa-sign-out-alt mr-3"></i>Logout
           </div>
         </nav>
       </aside>
+      {role === 'employee' && activeSection === 'profile' && (
+        <div className="p-6 mt-4 bg-white rounded-md shadow-md border border-gray-200 max-w-md mx-auto">
+          <EmployeeProfile />
+        </div>
+      )}
     </>
   );
 }
