@@ -11,7 +11,7 @@ function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('');
+  const [accountType, setAccountType] = useState('');
   const [extraSelection, setExtraSelection] = useState('');
   const [address, setAddress] = useState('');
   const [pincode, setPincode] = useState('');
@@ -89,12 +89,12 @@ function Register() {
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, role, extraSelection, address, pincode, mobileNumber, otp }),
+        body: JSON.stringify({ name, email, password, accountType, extraSelection, address, pincode, mobileNumber, otp }),
       });
       const data = await response.json();
       if (data.token) {
         login({ ...data.user, token: data.token });
-        navigate(`/${data.user.role}-dashboard`);
+        navigate(`/${data.user.accountType}-dashboard`);
       } else {
         alert('Registration failed');
       }
@@ -281,10 +281,10 @@ function Register() {
                 Account Type <span className="text-red-600">*</span>
               </label>
               <select
-                value={role}
+                value={accountType}
                 onChange={(e) => {
-                  setRole(e.target.value);
-                  setExtraSelection(''); // Reset extra selection when role changes
+                  setAccountType(e.target.value);
+                  setExtraSelection(''); // Reset extra selection when accountType changes
                 }}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -296,7 +296,7 @@ function Register() {
                 {/* Removed Administrator option to prevent admin registration */}
               </select>
             </div>
-            {role === 'employee' && (
+            {accountType === 'employee' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select Role <span className="text-red-600">*</span>
@@ -316,7 +316,7 @@ function Register() {
                 </select>
               </div>
             )}
-            {role === 'business' && (
+            {accountType === 'business' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select Business Category <span className="text-red-600">*</span>

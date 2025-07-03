@@ -4,11 +4,12 @@ const userSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
-  role: { type: String, enum: ['customer', 'business', 'employee', 'admin'], required: true },
+  accountType: { type: String, enum: ['customer', 'business', 'employee', 'admin'], required: true },
   address: { type: String, required: true },
   pincode: { type: String, required: true },
   mobileNumber: { type: String, required: true },
   businessCategory: { type: String }, // Added business category field
+  employeeRole: { type: String }, // Added employee role field
   createdAt: { type: Date, default: Date.now },
 });
 

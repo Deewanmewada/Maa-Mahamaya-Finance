@@ -159,16 +159,16 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 });
 
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, role, address, pincode, mobileNumber, otp, extraSelection } = req.body;
-  console.log('Register API received data:', { name, email, password, role, address, pincode, mobileNumber, otp, extraSelection });
+  const { name, email, password, accountType, address, pincode, mobileNumber, otp, extraSelection } = req.body;
+  console.log('Register API received data:', { name, email, password, accountType, address, pincode, mobileNumber, otp, extraSelection });
 
-  // Disallow registration with role 'admin'
-  if (role === 'admin') {
+  // Disallow registration with accountType 'admin'
+  if (accountType === 'admin') {
     return res.status(403).json({ message: 'Registration as admin is not allowed' });
   }
 
   // Validate that all required fields are present
-  if (!name || !email || !password || !role || !address || !pincode || !mobileNumber || !otp) {
+  if (!name || !email || !password || !accountType || !address || !pincode || !mobileNumber || !otp) {
     return res.status(400).json({ message: 'All fields including OTP are required' });
   }
 
@@ -184,25 +184,29 @@ app.post('/api/auth/register', async (req, res) => {
     await OTP.deleteOne({ email });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const userData = { name, email, password: hashedPassword, role, address, pincode, mobileNumber };
-    if (role === 'business' && extraSelection) {
+    const userData = { name, email, password: hashedPassword, accountType, address, pincode, mobileNumber };
+    if (accountType === 'business' && extraSelection) {
       userData.businessCategory = extraSelection;
+    }
+    if (accountType === 'employee' && extraSelection) {
+      userData.employeeRole = extraSelection;
     }
     const user = new User(userData);
     const savedUser = await user.save();
     console.log('User saved in DB:', savedUser.toObject()); // Use toObject() to log plain JS object
-    const token = jwt.sign({ id: savedUser._id, role: savedUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: savedUser._id, accountType: savedUser.accountType }, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.status(201).json({
       token,
       user: {
         id: savedUser._id,
         name: savedUser.name,
         email: savedUser.email,
-        role: savedUser.role,
+        accountType: savedUser.accountType,
         address: savedUser.address,
         pincode: savedUser.pincode,
         mobileNumber: savedUser.mobileNumber,
-        businessCategory: savedUser.businessCategory || null
+        businessCategory: savedUser.businessCategory || null,
+        employeeRole: savedUser.employeeRole || null
       }
     });
   } catch (error) {
@@ -217,8 +221,18 @@ app.post('/api/auth/login', async (req, res) => {
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return res.status(401).json({ message: 'Invalid credentials' });
   }
-  const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-  res.json({ token, user: { id: user._id, name: user.name, email: user.email, role: user.role } });
+  const token = jwt.sign({ id: user._id, accountType: user.accountType }, process.env.JWT_SECRET, { expiresIn: '1h' });
+  res.json({ 
+    token, 
+    user: { 
+      id: user._id, 
+      name: user.name, 
+      email: user.email, 
+      accountType: user.accountType,
+      businessCategory: user.businessCategory || null,
+      employeeRole: user.employeeRole || null
+    } 
+  });
 });
 
 // Loan Routes
