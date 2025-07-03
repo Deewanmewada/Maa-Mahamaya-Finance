@@ -12,6 +12,7 @@ function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('');
+  const [extraSelection, setExtraSelection] = useState('');
   const [address, setAddress] = useState('');
   const [pincode, setPincode] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
@@ -88,7 +89,7 @@ function Register() {
       const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, role, address, pincode, mobileNumber, otp }),
+        body: JSON.stringify({ name, email, password, role, extraSelection, address, pincode, mobileNumber, otp }),
       });
       const data = await response.json();
       if (data.token) {
@@ -281,7 +282,10 @@ function Register() {
               </label>
               <select
                 value={role}
-                onChange={(e) => setRole(e.target.value)}
+                onChange={(e) => {
+                  setRole(e.target.value);
+                  setExtraSelection(''); // Reset extra selection when role changes
+                }}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
@@ -289,9 +293,49 @@ function Register() {
                 <option value="customer">Personal Customer</option>
                 <option value="business">Business Account</option>
                 <option value="employee">Employee Access</option>
-                <option value="admin">Administrator</option>
+                {/* Removed Administrator option to prevent admin registration */}
               </select>
             </div>
+            {role === 'employee' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Role <span className="text-red-600">*</span>
+                </label>
+                <select
+                  value={extraSelection}
+                  onChange={(e) => setExtraSelection(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select Role</option>
+                  <option value="software_developer">Software Developer</option>
+                  <option value="hr">HR</option>
+                  <option value="sales">Sales</option>
+                  <option value="marketing">Marketing</option>
+                  <option value="finance">Finance</option>
+                </select>
+              </div>
+            )}
+            {role === 'business' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Select Business Category <span className="text-red-600">*</span>
+                </label>
+                <select
+                  value={extraSelection}
+                  onChange={(e) => setExtraSelection(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select Category</option>
+                  <option value="retail">Retail</option>
+                  <option value="manufacturing">Manufacturing</option>
+                  <option value="services">Services</option>
+                  <option value="technology">Technology</option>
+                  <option value="healthcare">Healthcare</option>
+                </select>
+              </div>
+            )}
             <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold text-lg transition-colors">
               Create Account
             </button>

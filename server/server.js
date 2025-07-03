@@ -18,12 +18,39 @@ app.get('/', (req, res) => {
   res.send('✅ Maa Mahamaya Finance backend is running!');
 });
 
+  
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-}).then(() => {
+}).then(async () => {
   console.log('Connected to MongoDB database');
+
+  // Check if admin user exists, if not create it
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  try {
+    const existingAdmin = await User.findOne({ email: adminEmail });
+    if (!existingAdmin) {
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
+      const adminUser = new User({
+        name: 'Administrator',
+        email: adminEmail,
+        password: hashedPassword,
+        role: 'admin',
+        address: 'N/A',
+        pincode: 'N/A',
+        mobileNumber: 'N/A',
+      });
+      await adminUser.save();
+      console.log('Admin user created with fixed credentials');
+    } else {
+      console.log('Admin user already exists');
+    }
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+  }
 }).catch((error) => {
   console.error('Error connecting to MongoDB:', error);
 });
@@ -134,6 +161,11 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 app.post('/api/auth/register', async (req, res) => {
   const { name, email, password, role, address, pincode, mobileNumber, otp } = req.body;
   console.log('Register API received data:', { name, email, password, role, address, pincode, mobileNumber, otp });
+
+  // Disallow registration with role 'admin'
+  if (role === 'admin') {
+    return res.status(403).json({ message: 'Registration as admin is not allowed' });
+  }
 
   // Validate that all required fields are present
   if (!name || !email || !password || !role || !address || !pincode || !mobileNumber || !otp) {
