@@ -1,6 +1,8 @@
 import React, { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import EmployeeProfile from './EmployeeProfile';
+import CustomerProfile from './CustomerProfile';
+import BusinessProfile from './BusinessProfile';
 
 function Sidebar({ role, activeSection, setActiveSection }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,6 +25,7 @@ function Sidebar({ role, activeSection, setActiveSection }) {
     { id: 'reports', label: 'Reports', icon: 'fas fa-chart-bar' },
     { id: 'loans', label: 'Loan Status', icon: 'fas fa-hand-holding-usd' },
     { id: 'settings', label: 'Settings', icon: 'fas fa-cog' },
+    { id: 'profile', label: 'Profile', icon: 'fas fa-user-cog' },
   ];
 
   const employeeItems = [
@@ -153,6 +156,16 @@ function Sidebar({ role, activeSection, setActiveSection }) {
       {role === 'employee' && activeSection === 'profile' && (
         <div className="p-6 mt-4 bg-white rounded-md shadow-md border border-gray-200 max-w-md mx-auto">
           <EmployeeProfile />
+        </div>
+      )}
+      {role === 'customer' && activeSection === 'profile' && (
+        <div className="p-6 mt-4 bg-white rounded-md shadow-md border border-gray-200 max-w-md mx-auto">
+          <CustomerProfile />
+        </div>
+      )}
+      {role === 'business' && activeSection === 'profile' && (
+        <div className="p-6 mt-4 bg-white rounded-md shadow-md border border-gray-200 max-w-md mx-auto">
+          <BusinessProfile />
         </div>
       )}
     </>

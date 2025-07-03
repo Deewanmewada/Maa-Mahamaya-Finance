@@ -159,8 +159,8 @@ app.post('/api/auth/verify-otp', async (req, res) => {
 });
 
 app.post('/api/auth/register', async (req, res) => {
-  const { name, email, password, role, address, pincode, mobileNumber, otp } = req.body;
-  console.log('Register API received data:', { name, email, password, role, address, pincode, mobileNumber, otp });
+  const { name, email, password, role, address, pincode, mobileNumber, otp, extraSelection } = req.body;
+  console.log('Register API received data:', { name, email, password, role, address, pincode, mobileNumber, otp, extraSelection });
 
   // Disallow registration with role 'admin'
   if (role === 'admin') {
@@ -184,7 +184,11 @@ app.post('/api/auth/register', async (req, res) => {
     await OTP.deleteOne({ email });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new User({ name, email, password: hashedPassword, role, address, pincode, mobileNumber });
+    const userData = { name, email, password: hashedPassword, role, address, pincode, mobileNumber };
+    if (role === 'business' && extraSelection) {
+      userData.businessCategory = extraSelection;
+    }
+    const user = new User(userData);
     const savedUser = await user.save();
     console.log('User saved in DB:', savedUser.toObject()); // Use toObject() to log plain JS object
     const token = jwt.sign({ id: savedUser._id, role: savedUser.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
@@ -197,7 +201,8 @@ app.post('/api/auth/register', async (req, res) => {
         role: savedUser.role,
         address: savedUser.address,
         pincode: savedUser.pincode,
-        mobileNumber: savedUser.mobileNumber
+        mobileNumber: savedUser.mobileNumber,
+        businessCategory: savedUser.businessCategory || null
       }
     });
   } catch (error) {

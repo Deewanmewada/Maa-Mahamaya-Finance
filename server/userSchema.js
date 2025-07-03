@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   address: { type: String, required: true },
   pincode: { type: String, required: true },
   mobileNumber: { type: String, required: true },
+  businessCategory: { type: String }, // Added business category field
   createdAt: { type: Date, default: Date.now },
 });
 
