@@ -42,13 +42,13 @@ function MobileSidebar({ isOpen, onClose, navigate, user, logout }) {
             <>
               <button
                 onClick={() => {
-                  if (user.role === 'employee') {
+                  if (user.accountType === 'employee') {
                     navigate('/employee-dashboard');
-                  } else if (user.role === 'admin') {
+                  } else if (user.accountType === 'admin') {
                     navigate('/admin-dashboard');
-                  } else if (user.role === 'customer') {
+                  } else if (user.accountType === 'customer') {
                     navigate('/customer-dashboard');
-                  } else if (user.role === 'business') {
+                  } else if (user.accountType === 'business') {
                     navigate('/business-dashboard');
                   } else {
                     navigate('/');
@@ -130,13 +130,13 @@ function Home() {
                 <div className="flex items-center space-x-4">
                   <button
                     onClick={() => {
-                      if (user.role === 'employee') {
+                      if (user.accountType === 'employee') {
                         navigate('/employee-dashboard');
-                      } else if (user.role === 'admin') {
+                      } else if (user.accountType === 'admin') {
                         navigate('/admin-dashboard');
-                      } else if (user.role === 'customer') {
+                      } else if (user.accountType === 'customer') {
                         navigate('/customer-dashboard');
-                      } else if (user.role === 'business') {
+                      } else if (user.accountType === 'business') {
                         navigate('/business-dashboard');
                       } else {
                         navigate('/');

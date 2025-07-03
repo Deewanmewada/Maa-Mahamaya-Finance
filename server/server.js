@@ -62,7 +62,7 @@ const authorize = (roles) => (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.role !== 'admin' && !roles.includes(decoded.role)) {
+    if (decoded.accountType !== 'admin' && !roles.includes(decoded.accountType)) {
       return res.status(403).json({ message: 'Unauthorized' });
     }
     req.user = decoded;

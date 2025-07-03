@@ -4,8 +4,8 @@ import { AuthContext } from '../context/AuthContext';
 
 function ProtectedRoute({ children, allowedRoles }) {
   const { user } = useContext(AuthContext);
-  // Allow access if user exists and their role is in allowedRoles or is admin
-  if (!user || (!allowedRoles.includes(user.role) && user.role !== 'admin')) {
+  // Allow access if user exists and their accountType is in allowedRoles or is admin
+  if (!user || (!allowedRoles.includes(user.accountType) && user.accountType !== 'admin')) {
     return <Navigate to="/login" replace />;
   }
   return children;

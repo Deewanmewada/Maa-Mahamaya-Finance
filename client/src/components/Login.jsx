@@ -21,7 +21,7 @@ function Login() {
       const data = await response.json();
       if (data.token) {
         login({ ...data.user, token: data.token });
-        navigate(`/${data.user.role}-dashboard`);
+        navigate(`/${data.user.accountType}-dashboard`);
       } else {
         alert('Login failed');
       }
